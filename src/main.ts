@@ -25,10 +25,10 @@ async function bootstrap() {
   app.enableCors();
 
   const config = app.get(ConfigService);
-  console.log(config);
+
   await app.listen(config.get('server.port')!);
   console.log(
-    `ProSeM | Server Running at ${process.env.PORT} \n Enviroment ===>  ${process.env.NODE_ENV}`,
+    `ReservePro | Server Running at ${process.env.PORT} \n Enviroment ===>  ${process.env.NODE_ENV}`,
   );
 }
 bootstrap();
