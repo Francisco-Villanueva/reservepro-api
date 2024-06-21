@@ -1,9 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Company } from './schema/company.schema';
-import { Model, SchemaTimestampsConfig, Document } from 'mongoose';
-export type CompanyDocument = Company & Document & SchemaTimestampsConfig;
-
-export interface CompanyModel extends Model<CompanyDocument> {}
+import { Company, CompanyModel } from './schema/company.schema';
+import { CompanyDTO } from './dto/company.dto';
 
 @Injectable()
 export class CompanyService {
@@ -12,5 +9,9 @@ export class CompanyService {
   ) {}
   async getAll(): Promise<Company[]> {
     return this.companyModel.find();
+  }
+
+  async create(data: CompanyDTO) {
+    return this.companyModel.create(data);
   }
 }

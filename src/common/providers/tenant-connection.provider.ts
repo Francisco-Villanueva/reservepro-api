@@ -8,8 +8,6 @@ export const tenantConnectionProvider = {
     if (!request.tenantName) {
       return connection.useDb(`invited`);
     }
-
-    console.log(`tenant_${request.tenantName}`);
     return connection.useDb(`tenant_${request.tenantName}`);
   },
   inject: [REQUEST, getConnectionToken()],
