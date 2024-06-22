@@ -5,6 +5,7 @@ import { EnvConfiguration, ZodEnvironmentsSchema } from './config';
 import { CompanyModule } from './company/company.module';
 import { AuthModule } from './auth/auth.module';
 import { MembersModule } from './members/members.module';
+import { AppointmentsModule } from './appointments/appointments.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { MembersModule } from './members/members.module';
     CompanyModule,
     AuthModule,
     MembersModule,
+    AppointmentsModule,
   ],
   controllers: [],
   providers: [],
