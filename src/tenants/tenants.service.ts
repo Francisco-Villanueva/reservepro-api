@@ -21,7 +21,7 @@ export class TenantsService {
       );
     }
 
-    await this.tenantRepository.create(createTenantDto);
+    return await this.tenantRepository.create(createTenantDto);
   }
 
   async createByProviders(
