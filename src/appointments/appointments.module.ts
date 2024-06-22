@@ -1,6 +1,6 @@
 import { MiddlewareConsumer, Module } from '@nestjs/common';
-import { MembersController } from './members.controller';
-import { MembersService } from './members.service';
+import { AppointmentsController } from './appointments.controller';
+import { AppointmentsService } from './appointments.service';
 import { tenantModels } from 'src/common/providers/tenant-models-provider';
 import { TenantsModule } from 'src/tenants/tenants.module';
 import { JwtService } from '@nestjs/jwt';
@@ -8,12 +8,12 @@ import { TenantsMiddleware } from 'src/common/middlewares/tenants.middleware';
 
 @Module({
   imports: [TenantsModule],
-  controllers: [MembersController],
-  providers: [MembersService, tenantModels.membersModel, JwtService],
-  exports: [MembersService],
+  controllers: [AppointmentsController],
+  providers: [AppointmentsService, tenantModels.appointmentModel, JwtService],
+  exports: [AppointmentsService],
 })
-export class MembersModule {
+export class AppointmentsModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(TenantsMiddleware).forRoutes(MembersController);
+    consumer.apply(TenantsMiddleware).forRoutes(AppointmentsController);
   }
 }
