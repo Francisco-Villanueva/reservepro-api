@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, SchemaTimestampsConfig, Model } from 'mongoose';
+import { Document, SchemaTimestampsConfig, Model, Types } from 'mongoose';
+import { Member } from 'src/members/schema/member.schema';
 
 @Schema({ timestamps: true })
 export class Company extends Document {
@@ -19,6 +20,8 @@ export class Company extends Document {
   status: boolean;
   @Prop({ type: String, required: false })
   image?: string;
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'Member' }], default: [] })
+  members: Member[];
 }
 
 export const CompanySchema = SchemaFactory.createForClass(Company);

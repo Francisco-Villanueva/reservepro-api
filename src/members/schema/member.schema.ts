@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { genSalt, hash } from 'bcrypt';
-import { Document, SchemaTimestampsConfig, Model } from 'mongoose';
+import { Document, SchemaTimestampsConfig, Model, Types } from 'mongoose';
+import { Company } from 'src/company/schema/company.schema';
 @Schema({ timestamps: true })
 export class Member extends Document {
   @Prop({ type: String, required: true })
@@ -15,6 +16,8 @@ export class Member extends Document {
   password: string;
   @Prop({ type: String, required: false })
   salt: string;
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'Company' }], default: [] })
+  companies: Company[];
 }
 export const MemberSchema = SchemaFactory.createForClass(Member);
 
@@ -32,5 +35,5 @@ MemberSchema.pre('save', async function (next) {
   }
 });
 
-export type MemberDocument = Company & Document & SchemaTimestampsConfig;
+export type MemberDocument = Member & Document & SchemaTimestampsConfig;
 export interface MemberModel extends Model<MemberDocument> {}

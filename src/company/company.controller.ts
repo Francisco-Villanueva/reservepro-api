@@ -21,4 +21,17 @@ export class CompanyController {
       return error;
     }
   }
+  @Post('/add-member')
+  async addMember(
+    @Body() { companyId, memberId }: { companyId: string; memberId: string },
+  ) {
+    try {
+      return await this.companyService.addMemberToCompany({
+        companyId,
+        memberId,
+      });
+    } catch (error) {
+      return error;
+    }
+  }
 }

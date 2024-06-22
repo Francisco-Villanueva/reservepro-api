@@ -7,5 +7,6 @@ export const ZodTenantSchema = z.object({
   userName: z.string(),
   password: z.string(),
   tenantName: z.string(),
+  isAdmin: z.boolean().optional(),
   image: z.string().optional(),
 });

@@ -17,6 +17,9 @@ export class Tenant extends Document {
   @Prop({ type: String, required: true })
   email: string;
 
+  @Prop({ type: String, default: true })
+  isAdmin: string;
+
   @Prop({ type: String })
   image?: string;
 
