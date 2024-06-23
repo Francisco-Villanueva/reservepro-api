@@ -1,8 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { genSalt, hash } from 'bcrypt';
-import { Document } from 'mongoose';
+import mongoose, { Document } from 'mongoose';
 @Schema({ timestamps: true })
 export class Tenant extends Document {
+  _id?: mongoose.Schema.Types.ObjectId;
   @Prop({ type: String, required: true })
   name: string;
 

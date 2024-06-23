@@ -2,12 +2,14 @@ import {
   Body,
   Controller,
   Get,
+  Param,
+  Patch,
   Post,
   Request,
   UnauthorizedException,
 } from '@nestjs/common';
 import { MembersService } from './members.service';
-import { MemberDto } from './dto/member.dto';
+import { MemberDto, UpdateMemberDto } from './dto/member.dto';
 import { TenantsService } from 'src/tenants/tenants.service';
 import { JwtService } from '@nestjs/jwt';
 import { CompanyService } from 'src/company/company.service';
@@ -59,6 +61,17 @@ export class MembersController {
       }
 
       return newMember;
+    } catch (error) {
+      return error;
+    }
+  }
+
+  @Patch(':id')
+  async update(@Param() { id }: { id: string }, @Body() data: UpdateMemberDto) {
+    try {
+      const updatedMember = await this.memberService.update(id, data);
+
+      return updatedMember;
     } catch (error) {
       return error;
     }

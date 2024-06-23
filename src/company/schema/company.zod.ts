@@ -1,3 +1,4 @@
+import { WorkhourZodSchema } from 'src/common/workhours';
 import { z } from 'zod';
 
 export const CompanuZodSchema = z.object({
@@ -9,4 +10,5 @@ export const CompanuZodSchema = z.object({
   category: z.array(z.string()),
   image: z.string().optional(),
   email: z.string().optional(),
+  workhours: z.array(WorkhourZodSchema).optional(),
 });
