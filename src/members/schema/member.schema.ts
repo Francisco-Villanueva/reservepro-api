@@ -1,9 +1,16 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { genSalt, hash } from 'bcrypt';
-import { Document, SchemaTimestampsConfig, Model, Types } from 'mongoose';
+import mongoose, {
+  Document,
+  SchemaTimestampsConfig,
+  Model,
+  Types,
+} from 'mongoose';
+import { IWorkhour } from 'src/common/workhours';
 import { Company } from 'src/company/schema/company.schema';
 @Schema({ timestamps: true })
 export class Member extends Document {
+  _id?: mongoose.Schema.Types.ObjectId;
   @Prop({ type: String, required: true })
   name: string;
   @Prop({ type: String, required: true })
@@ -18,6 +25,10 @@ export class Member extends Document {
   salt: string;
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Company' }], default: [] })
   companies: Company[];
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'Appointment' }], default: [] })
+  appointments: mongoose.Schema.Types.ObjectId[];
+  @Prop({ type: Array, default: [] })
+  workhours: IWorkhour[];
 }
 export const MemberSchema = SchemaFactory.createForClass(Member);
 

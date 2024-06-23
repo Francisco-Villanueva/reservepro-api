@@ -5,11 +5,18 @@ import { tenantModels } from 'src/common/providers/tenant-models-provider';
 import { TenantsModule } from 'src/tenants/tenants.module';
 import { JwtService } from '@nestjs/jwt';
 import { TenantsMiddleware } from 'src/common/middlewares/tenants.middleware';
+import { MembersService } from 'src/members/members.service';
 
 @Module({
   imports: [TenantsModule],
   controllers: [AppointmentsController],
-  providers: [AppointmentsService, tenantModels.appointmentModel, JwtService],
+  providers: [
+    AppointmentsService,
+    tenantModels.appointmentModel,
+    tenantModels.membersModel,
+    MembersService,
+    JwtService,
+  ],
   exports: [AppointmentsService],
 })
 export class AppointmentsModule {
