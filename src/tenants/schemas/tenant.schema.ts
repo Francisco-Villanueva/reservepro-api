@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { genSalt, hash } from 'bcrypt';
 import mongoose, { Document } from 'mongoose';
+import { ROLES } from 'src/constants/roles';
 @Schema({ timestamps: true })
 export class Tenant extends Document {
   _id?: mongoose.Schema.Types.ObjectId;
@@ -18,8 +19,8 @@ export class Tenant extends Document {
   @Prop({ type: String, required: true })
   email: string;
 
-  @Prop({ type: String, default: true })
-  isAdmin: string;
+  @Prop({ type: String, required: true })
+  role: ROLES;
 
   @Prop({ type: String })
   image?: string;

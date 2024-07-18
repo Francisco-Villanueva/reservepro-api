@@ -24,7 +24,7 @@ export class Member extends Document {
   @Prop({ type: String, required: false })
   salt: string;
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Company' }], default: [] })
-  companies: Company[];
+  companies: mongoose.Schema.Types.ObjectId[];
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Appointment' }], default: [] })
   appointments: mongoose.Schema.Types.ObjectId[];
   @Prop({ type: Array, default: [] })
