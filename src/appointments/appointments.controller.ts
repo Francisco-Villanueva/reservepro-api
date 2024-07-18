@@ -8,11 +8,7 @@ import {
 } from '@nestjs/common';
 import { AppointmentsService } from './appointments.service';
 import { MembersService } from 'src/members/members.service';
-import {
-  AppointmentDTO,
-  CancelAppointmentDTO,
-  SlotAppointmentDTO,
-} from './dto/appointment.dto';
+import { AppointmentDTO, SlotAppointmentDTO } from './dto/appointment.dto';
 import { getAvailableTimes } from './utlis';
 import { IWorkhour } from 'src/common/workhours';
 import { Appointment } from './schema/appointment.schema';
@@ -82,6 +78,9 @@ export class AppointmentsController {
       const member = await this.memberService.getById(data.memberId);
       if (!member) {
         throw new UnauthorizedException('Member not found.');
+      }
+      if (member.companies.length == 0) {
+        throw new UnauthorizedException('Member no tiene company');
       }
 
       await this.validateAppointmentData(data, member.workhours);

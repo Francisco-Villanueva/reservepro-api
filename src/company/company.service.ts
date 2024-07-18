@@ -1,9 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Company, CompanyModel } from './schema/company.schema';
 import { CompanyDTO } from './dto/company.dto';
-import { MemberModel } from 'src/members/schema/member.schema';
-import { Types } from 'mongoose';
-
+import { Member, MemberModel } from 'src/members/schema/member.schema';
 @Injectable()
 export class CompanyService {
   constructor(
@@ -13,30 +11,29 @@ export class CompanyService {
   async getAll(): Promise<Company[]> {
     return this.companyModel.find().populate('members').exec();
   }
+  async getById(_id: string): Promise<Company> {
+    return this.companyModel.findById({ _id });
+  }
 
   async create(data: CompanyDTO) {
     return await this.companyModel.create(data);
   }
 
   async addMemberToCompany({
-    companyId,
-    memberId,
+    company,
+    member,
   }: {
-    companyId: string;
-    memberId: string;
+    company: Company;
+    member: Member;
   }): Promise<void> {
-    const company = await this.companyModel.findById(companyId);
-    const member = await this.memberModel.findById(memberId);
+    company.members.push(member);
+    await company.save();
 
-    if (!company || !member) {
-      throw new Error('Data error, memberId or CompanyId are not ok.');
-    }
-    if (company && member) {
-      company.members.push(member);
-      await company.save();
-
-      member.companies.push(company);
+    if (!member.workhours.length) {
+      member.workhours = company.workhours;
       await member.save();
     }
+    member.companies.push(company._id);
+    await member.save();
   }
 }

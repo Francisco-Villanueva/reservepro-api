@@ -6,12 +6,14 @@ import { tenantModels } from 'src/common/providers/tenant-models-provider';
 import { JwtService } from '@nestjs/jwt';
 import { TenantsMiddleware } from 'src/common/middlewares/tenants.middleware';
 import { MembersModule } from 'src/members/members.module';
+import { MembersService } from 'src/members/members.service';
 
 @Module({
   imports: [TenantsModule, MembersModule],
   controllers: [CompanyController],
   providers: [
     CompanyService,
+    MembersService,
     tenantModels.membersModel,
     tenantModels.companyModel,
     JwtService,
