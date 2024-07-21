@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -72,6 +73,17 @@ export class MembersController {
       const updatedMember = await this.memberService.update(id, data);
 
       return updatedMember;
+    } catch (error) {
+      return error;
+    }
+  }
+  @Delete(':id')
+  async delete(@Param() { id }: { id: string }) {
+    try {
+      const deleted = await this.memberService.delete(id);
+
+      console.log({ deleted });
+      return deleted;
     } catch (error) {
       return error;
     }
