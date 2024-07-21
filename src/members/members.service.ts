@@ -20,4 +20,7 @@ export class MembersService {
   async update(id: string, data: UpdateMemberDto): Promise<Member> {
     return this.memberModel.findByIdAndUpdate(id, data, { new: true });
   }
+  async delete(id: string) {
+    return this.memberModel.deleteOne({ _id: id });
+  }
 }

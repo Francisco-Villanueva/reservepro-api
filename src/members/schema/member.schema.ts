@@ -8,6 +8,7 @@ import mongoose, {
 } from 'mongoose';
 import { IWorkhour } from 'src/common/workhours';
 import { Company } from 'src/company/schema/company.schema';
+import { Role } from 'src/constants/roles';
 @Schema({ timestamps: true })
 export class Member extends Document {
   _id?: mongoose.Schema.Types.ObjectId;
@@ -17,6 +18,8 @@ export class Member extends Document {
   lastName: string;
   @Prop({ type: String, required: true })
   email: string;
+  @Prop({ type: String, required: true })
+  role: Role;
   @Prop({ type: String })
   image?: string;
   @Prop({ type: String, required: false })
