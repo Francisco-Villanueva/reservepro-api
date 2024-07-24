@@ -15,6 +15,8 @@ export class Tenant extends Document {
   userName: string;
   @Prop({ type: String, default: '' })
   tenantName: string;
+  @Prop({ type: String, default: '' })
+  companyName: string;
 
   @Prop({ type: String, required: true })
   email: string;

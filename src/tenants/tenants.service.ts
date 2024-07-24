@@ -16,12 +16,18 @@ export class TenantsService {
     const user = await this.findByEmail(createTenantDto.email);
 
     if (user) {
-      throw new BadRequestException(
-        'The credentials are not valid, please try again.',
-      );
+      throw new BadRequestException('This mail is already in use');
     }
 
-    return await this.tenantRepository.create(createTenantDto);
+    const data: CreateTenantDto = {
+      ...createTenantDto,
+      tenantName: createTenantDto.companyName
+        .split(' ')
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(''),
+    };
+
+    return await this.tenantRepository.create(data);
   }
 
   async createByProviders(

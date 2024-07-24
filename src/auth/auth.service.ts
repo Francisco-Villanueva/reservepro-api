@@ -18,7 +18,7 @@ export class AuthService {
   async login(loginDto: LoginDto) {
     const user = await this.validateUser(loginDto);
 
-    const { _id, email, name, image, tenantName } = user;
+    const { _id, email, name, image, tenantName, companyName, role } = user;
 
     const payload = {
       _id,
@@ -26,6 +26,8 @@ export class AuthService {
       name,
       image,
       tenantName,
+      companyName,
+      role,
     };
 
     return {
@@ -70,7 +72,7 @@ export class AuthService {
     );
 
     if (user) {
-      const { _id, email, name, image, tenantName } = user;
+      const { _id, email, name, image, tenantName, companyName, role } = user;
 
       const payload = {
         _id,
@@ -78,8 +80,9 @@ export class AuthService {
         name,
         image,
         tenantName,
+        companyName,
+        role,
       };
-
       return {
         user: payload,
         backendTokens: {
@@ -99,7 +102,7 @@ export class AuthService {
   }
 
   async refreshToken(user: any) {
-    const { _id, email, name, image, tenantName } = user;
+    const { _id, email, name, image, tenantName, companyName, role } = user;
 
     const payload = {
       _id,
@@ -107,6 +110,8 @@ export class AuthService {
       name,
       image,
       tenantName,
+      companyName,
+      role,
     };
 
     return {
