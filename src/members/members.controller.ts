@@ -48,10 +48,12 @@ export class MembersController {
       if (!tenantName) {
         throw new UnauthorizedException();
       }
+
       const newTenant = await this.tenantService.create({
         ...data,
         tenantName,
       });
+
       if (!newTenant) {
         throw new UnauthorizedException();
       }

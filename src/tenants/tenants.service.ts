@@ -21,10 +21,12 @@ export class TenantsService {
 
     const data: CreateTenantDto = {
       ...createTenantDto,
-      tenantName: createTenantDto.companyName
-        .split(' ')
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(''),
+      tenantName: createTenantDto.tenantName
+        ? createTenantDto.tenantName
+        : createTenantDto.companyName
+            .split(' ')
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(''),
     };
 
     return await this.tenantRepository.create(data);
