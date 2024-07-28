@@ -6,7 +6,6 @@ import { TenantsModule } from 'src/tenants/tenants.module';
 import { JwtService } from '@nestjs/jwt';
 import { TenantsMiddleware } from 'src/common/middlewares/tenants.middleware';
 import { CompanyService } from 'src/company/company.service';
-import { CompanyModule } from 'src/company/company.module';
 
 @Module({
   imports: [TenantsModule],
