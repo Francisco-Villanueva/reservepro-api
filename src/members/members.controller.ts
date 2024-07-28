@@ -40,6 +40,14 @@ export class MembersController {
       return error;
     }
   }
+  @Get('/count')
+  async getCount() {
+    try {
+      return await this.memberService.count();
+    } catch (error) {
+      return error;
+    }
+  }
 
   @Post()
   async create(@Body() data: MemberDto, @Request() req: Request) {
@@ -69,7 +77,7 @@ export class MembersController {
     }
   }
 
-  @Patch(':id')
+  @Patch('/edit/:id')
   async update(@Param() { id }: { id: string }, @Body() data: UpdateMemberDto) {
     try {
       const updatedMember = await this.memberService.update(id, data);

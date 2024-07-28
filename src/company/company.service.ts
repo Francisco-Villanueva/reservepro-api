@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Company, CompanyModel } from './schema/company.schema';
-import { CompanyDTO } from './dto/company.dto';
+import { CompanyDTO, UpdateCompanyDTO } from './dto/company.dto';
 import { Member, MemberModel } from 'src/members/schema/member.schema';
 @Injectable()
 export class CompanyService {
@@ -17,6 +17,11 @@ export class CompanyService {
 
   async create(data: CompanyDTO) {
     return await this.companyModel.create(data);
+  }
+  async update(id: string, data: UpdateCompanyDTO) {
+    return await this.companyModel.findByIdAndUpdate(id, data, {
+      new: true,
+    });
   }
 
   async addMemberToCompany({
@@ -35,5 +40,9 @@ export class CompanyService {
     }
     member.companies.push(company._id);
     await member.save();
+  }
+
+  async count() {
+    return this.companyModel.countDocuments();
   }
 }
