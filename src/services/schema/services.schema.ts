@@ -7,10 +7,9 @@ import mongoose, {
   Types,
 } from 'mongoose';
 import { IWorkhour } from 'src/common/workhours';
-import { Company } from 'src/company/schema/company.schema';
 import { Role } from 'src/constants/roles';
 @Schema({ timestamps: true })
-export class Member extends Document {
+export class Service extends Document {
   _id?: mongoose.Schema.Types.ObjectId;
   @Prop({ type: String, required: true })
   name: string;
@@ -33,21 +32,7 @@ export class Member extends Document {
   @Prop({ type: Array, default: [] })
   workhours: IWorkhour[];
 }
-export const MemberSchema = SchemaFactory.createForClass(Member);
+export const ServiceSchema = SchemaFactory.createForClass(Service);
 
-MemberSchema.pre('save', async function (next) {
-  if (!this.isModified('password') || !this.password) {
-    return next();
-  }
-  try {
-    const salt = await genSalt(10);
-    this.salt = salt;
-    this.password = await hash(this.password, salt);
-    next();
-  } catch (error) {
-    return next(error);
-  }
-});
-
-export type MemberDocument = Member & Document & SchemaTimestampsConfig;
-export interface MemberModel extends Model<MemberDocument> {}
+export type ServiceDocument = Service & Document & SchemaTimestampsConfig;
+export interface ServiceModel extends Model<ServiceDocument> {}

@@ -11,6 +11,9 @@ export class MembersService {
   async getAll(): Promise<Member[]> {
     return this.memberModel.find();
   }
+  async count(): Promise<number> {
+    return this.memberModel.countDocuments();
+  }
   async getById(id: string): Promise<Member> {
     return this.memberModel.findById({ _id: id });
   }
@@ -19,5 +22,8 @@ export class MembersService {
   }
   async update(id: string, data: UpdateMemberDto): Promise<Member> {
     return this.memberModel.findByIdAndUpdate(id, data, { new: true });
+  }
+  async delete(id: string) {
+    return this.memberModel.deleteOne({ _id: id });
   }
 }

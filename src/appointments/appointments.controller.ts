@@ -4,6 +4,7 @@ import {
   Get,
   Patch,
   Post,
+  Query,
   UnauthorizedException,
 } from '@nestjs/common';
 import { AppointmentsService } from './appointments.service';
@@ -52,9 +53,9 @@ export class AppointmentsController {
   }
 
   @Get()
-  async getAll() {
+  async getAll(@Query('availables') availables?: boolean) {
     try {
-      return await this.appointmentService.getAll();
+      return await this.appointmentService.getAll(availables);
     } catch (error) {
       return error;
     }
@@ -124,10 +125,9 @@ export class AppointmentsController {
         throw new UnauthorizedException('Appointment not found.');
       }
 
-      return await this.appointmentService.cancelAppointment(
-        appointmemntId,
-        memberId,
-      );
+      await this.appointmentService.cancelAppointment(appointmemntId, memberId);
+
+      return 'Appointment cancelled successfully';
     } catch (error) {
       return error;
     }

@@ -7,6 +7,7 @@ import { JwtService } from '@nestjs/jwt';
 import { TenantsMiddleware } from 'src/common/middlewares/tenants.middleware';
 import { MembersModule } from 'src/members/members.module';
 import { MembersService } from 'src/members/members.service';
+import { GeocodeService } from 'src/geocode/geocode.services';
 
 @Module({
   imports: [TenantsModule, MembersModule],
@@ -14,6 +15,7 @@ import { MembersService } from 'src/members/members.service';
   providers: [
     CompanyService,
     MembersService,
+    GeocodeService,
     tenantModels.membersModel,
     tenantModels.companyModel,
     JwtService,

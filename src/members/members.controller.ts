@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -39,6 +40,14 @@ export class MembersController {
       return error;
     }
   }
+  @Get('/count')
+  async getCount() {
+    try {
+      return await this.memberService.count();
+    } catch (error) {
+      return error;
+    }
+  }
 
   @Post()
   async create(@Body() data: MemberDto, @Request() req: Request) {
@@ -47,10 +56,12 @@ export class MembersController {
       if (!tenantName) {
         throw new UnauthorizedException();
       }
+
       const newTenant = await this.tenantService.create({
         ...data,
         tenantName,
       });
+
       if (!newTenant) {
         throw new UnauthorizedException();
       }
@@ -66,12 +77,23 @@ export class MembersController {
     }
   }
 
-  @Patch(':id')
+  @Patch('/edit/:id')
   async update(@Param() { id }: { id: string }, @Body() data: UpdateMemberDto) {
     try {
       const updatedMember = await this.memberService.update(id, data);
 
       return updatedMember;
+    } catch (error) {
+      return error;
+    }
+  }
+  @Delete(':id')
+  async delete(@Param() { id }: { id: string }) {
+    try {
+      const deleted = await this.memberService.delete(id);
+
+      console.log({ deleted });
+      return deleted;
     } catch (error) {
       return error;
     }

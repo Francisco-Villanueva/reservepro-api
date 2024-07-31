@@ -11,7 +11,10 @@ export class AppointmentsService {
     @Inject('MEMBER_MODEL') private readonly memberModel: MemberModel,
   ) {}
 
-  async getAll(): Promise<Appointment[]> {
+  async getAll(availables: boolean): Promise<Appointment[]> {
+    if (availables) {
+      return await this.appointmentModel.find({ canceled: !availables });
+    }
     return await this.appointmentModel.find();
   }
   async findById(_id: Appointment['_id']): Promise<Appointment> {

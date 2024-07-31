@@ -20,8 +20,6 @@ async function bootstrap() {
   );
 
   app.useGlobalPipes(new ZodValidationPipe());
-
-  // Todo: configure CORS it with environment variables
   app.enableCors();
 
   const config = app.get(ConfigService);
