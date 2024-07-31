@@ -35,7 +35,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@anatine/zod-nestjs": "^2.0.8",
+    "@anatine/zod-nestjs": "^2.0.9",
     "@anatine/zod-openapi": "^2.2.5",
     "@nestjs/cli": "^10.0.0",
     "@nestjs/config": "^3.2.2",
