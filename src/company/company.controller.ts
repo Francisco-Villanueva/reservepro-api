@@ -2,9 +2,12 @@ import {
   Body,
   Controller,
   Get,
+  Header,
+  Headers,
   Param,
   Patch,
   Post,
+  Request,
   UnauthorizedException,
 } from '@nestjs/common';
 import { CompanyService } from './company.service';
@@ -15,16 +18,33 @@ import {
 } from './dto/company.dto';
 import { MembersService } from 'src/members/members.service';
 import { GeocodeService } from 'src/geocode/geocode.services';
+import { Request as RequestExp } from 'express';
+import { JwtService } from '@nestjs/jwt';
 import { Location } from './interfaces/location.interface';
-import { ICompany } from './schema/company.zod';
-
 @Controller('company')
 export class CompanyController {
   constructor(
     private readonly companyService: CompanyService,
     private readonly memberService: MembersService,
     private readonly geocodeService: GeocodeService,
+    private jwtService: JwtService,
   ) {}
+  private async getTenantName(request: RequestExp) {
+    const [type, token] = request.headers.authorization?.split(' ') ?? [];
+
+    const tokneRes = type === 'Bearer' ? token : undefined;
+
+    if (!tokneRes) throw new UnauthorizedException();
+    try {
+      const payload = await this.jwtService.verifyAsync(token, {
+        secret: process.env.JWTSECRETKEY,
+      });
+
+      return payload.tenantName;
+    } catch (error) {
+      throw new UnauthorizedException();
+    }
+  }
   @Get()
   async getAll() {
     try {
@@ -63,20 +83,23 @@ export class CompanyController {
     }
   }
   @Post()
-  async create(@Body() data: CreateCompanyDTO) {
+  async create(@Body() data: CreateCompanyDTO, @Request() req: RequestExp) {
     try {
+      const tenantName = await this.getTenantName(req);
       const { address } = data;
       const locationData = await this.geocodeService.geocodeAddress(address);
 
-      const formatedAddress = {
+      const formatedAddress: Location = {
         lat: locationData.lat,
         lng: locationData.lng,
         value: address,
+        city: locationData.city,
       };
 
       return await this.companyService.create({
         ...data,
         address: formatedAddress,
+        tenantName,
       });
     } catch (error) {
       return error;

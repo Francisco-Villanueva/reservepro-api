@@ -59,4 +59,7 @@ export class TenantsService {
   async update(userId: ObjectId, updateTenantDto: UpdateTenantDto) {
     return this.tenantRepository.findByIdAndUpdate(userId, updateTenantDto);
   }
+  async delete(email: string) {
+    return this.tenantRepository.findOneAndDelete({ email });
+  }
 }

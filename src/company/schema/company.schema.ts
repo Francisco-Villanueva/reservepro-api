@@ -17,14 +17,16 @@ export class Company extends Document {
   name: string;
   @Prop({ type: Object, required: true })
   address: Location;
-  @Prop({ type: String, required: false })
-  email: string;
   @Prop({ type: Array, required: true, max: 3 })
   category: Category[];
   @Prop({ type: Array, default: [] })
   workhours: IWorkhour[];
   @Prop({ type: Boolean, default: true })
   status: boolean;
+  @Prop({ type: String, required: false })
+  email: string;
+  @Prop({ type: String, required: false })
+  tenantName: string;
   @Prop({ type: String, required: false })
   image?: string;
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Member' }], default: [] })

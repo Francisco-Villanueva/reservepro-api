@@ -1,36 +1,26 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { genSalt, hash } from 'bcrypt';
 import mongoose, {
   Document,
   SchemaTimestampsConfig,
   Model,
   Types,
 } from 'mongoose';
-import { IWorkhour } from 'src/common/workhours';
-import { Role } from 'src/constants/roles';
+import { Provision } from '../interfaces/provision.interface';
 @Schema({ timestamps: true })
 export class Service extends Document {
   _id?: mongoose.Schema.Types.ObjectId;
   @Prop({ type: String, required: true })
-  name: string;
-  @Prop({ type: String, required: true })
-  lastName: string;
-  @Prop({ type: String, required: true })
-  email: string;
-  @Prop({ type: String, required: true })
-  role: Role;
+  title: string;
+  @Prop({ type: Number, required: true })
+  duration: number;
+  @Prop({ type: Number, required: true })
+  price: number;
   @Prop({ type: String })
-  image?: string;
+  provision: Provision;
   @Prop({ type: String, required: false })
-  password: string;
-  @Prop({ type: String, required: false })
-  salt: string;
-  @Prop({ type: [{ type: Types.ObjectId, ref: 'Company' }], default: [] })
-  companies: mongoose.Schema.Types.ObjectId[];
-  @Prop({ type: [{ type: Types.ObjectId, ref: 'Appointment' }], default: [] })
-  appointments: mongoose.Schema.Types.ObjectId[];
-  @Prop({ type: Array, default: [] })
-  workhours: IWorkhour[];
+  description: string;
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'Member' }], default: [] })
+  members: mongoose.Schema.Types.ObjectId[];
 }
 export const ServiceSchema = SchemaFactory.createForClass(Service);
 
