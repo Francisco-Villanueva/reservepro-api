@@ -13,14 +13,12 @@ import { MembersService } from './members.service';
 import { MemberDto, UpdateMemberDto } from './dto/member.dto';
 import { TenantsService } from 'src/tenants/tenants.service';
 import { JwtService } from '@nestjs/jwt';
-import { CompanyService } from 'src/company/company.service';
 @Controller('members')
 export class MembersController {
   constructor(
     private readonly memberService: MembersService,
     private readonly tenantService: TenantsService,
     private readonly jwtService: JwtService,
-    private readonly companyService: CompanyService,
   ) {}
   private async getTenantName(@Request() request): Promise<string> {
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
@@ -36,6 +34,14 @@ export class MembersController {
   async getAll() {
     try {
       return await this.memberService.getAll();
+    } catch (error) {
+      return error;
+    }
+  }
+  @Get('/free')
+  async getFree() {
+    try {
+      return await this.memberService.getFree();
     } catch (error) {
       return error;
     }
@@ -90,9 +96,14 @@ export class MembersController {
   @Delete(':id')
   async delete(@Param() { id }: { id: string }) {
     try {
+      const memberToDelete = await this.memberService.getById(id);
+      if (!memberToDelete) {
+        throw new UnauthorizedException('Member  noy found.!');
+      }
+
+      await this.tenantService.delete(memberToDelete.email);
       const deleted = await this.memberService.delete(id);
 
-      console.log({ deleted });
       return deleted;
     } catch (error) {
       return error;

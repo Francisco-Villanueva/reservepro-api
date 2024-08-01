@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { MembersModule } from './members/members.module';
 import { AppointmentsModule } from './appointments/appointments.module';
 import { ServicesModule } from './services/services.module';
+import { ClientModule } from './client/client.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { ServicesModule } from './services/services.module';
     MembersModule,
     AppointmentsModule,
     ServicesModule,
+    ClientModule,
   ],
   controllers: [],
   providers: [],

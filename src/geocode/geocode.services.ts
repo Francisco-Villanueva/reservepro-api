@@ -1,4 +1,3 @@
-// geocode.service.ts
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
 
@@ -22,10 +21,22 @@ export class GeocodeService {
         throw new Error(`Geocodificación fallida: ${response.data.status}`);
       }
 
-      const location = response.data.results[0].geometry.location;
+      const result = response.data.results[0];
+      const location = result.geometry.location;
+
+      // Encontrar el componente de dirección que representa la ciudad
+      let city = '';
+      for (const component of result.address_components) {
+        if (component.types.includes('locality')) {
+          city = component.long_name;
+          break;
+        }
+      }
+
       return {
         lat: location.lat,
         lng: location.lng,
+        city,
       };
     } catch (error) {
       throw new Error('Error en la geocodificación: ' + error.message);
