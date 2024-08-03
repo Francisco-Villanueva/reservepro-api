@@ -9,6 +9,7 @@ import { IWorkhour } from 'src/common/workhours';
 import { Member } from 'src/members/schema/member.schema';
 import { Category } from '../interfaces/categeory.interface';
 import { Location } from '../interfaces/location.interface';
+import { Service } from 'src/services/schema/services.schema';
 
 @Schema({ timestamps: true })
 export class Company extends Document {
@@ -31,6 +32,8 @@ export class Company extends Document {
   image?: string;
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Member' }], default: [] })
   members: Member[];
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'Service' }], default: [] })
+  services: Service[];
 }
 
 export const CompanySchema = SchemaFactory.createForClass(Company);

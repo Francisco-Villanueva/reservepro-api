@@ -21,6 +21,8 @@ export class Service extends Document {
   description: string;
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Member' }], default: [] })
   members: mongoose.Schema.Types.ObjectId[];
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'Member' }], default: [] })
+  companies: mongoose.Schema.Types.ObjectId[];
 }
 export const ServiceSchema = SchemaFactory.createForClass(Service);
 

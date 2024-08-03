@@ -8,12 +8,14 @@ import {
   clientsModels,
   tenantModels,
 } from 'src/common/providers/tenant-models-provider';
+import { CompanyService } from 'src/company/company.service';
 
 @Module({
   imports: [TenantsModule],
   controllers: [ServicesController],
   providers: [
     ServicesService,
+    CompanyService,
     JwtService,
     tenantModels.serviceModel,
     clientsModels.clientServiceModel,

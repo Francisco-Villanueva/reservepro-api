@@ -9,11 +9,19 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ServicesService } from './services.service';
-import { CreateServicesDto, UpdateServicesDto } from './dto/services.dto';
-
+import {
+  AddToCompanyServicesDto,
+  CreateServicesDto,
+  UpdateServicesDto,
+} from './dto/services.dto';
+import { CompanyService } from 'src/company/company.service';
+import { Company } from 'src/company/schema/company.schema';
 @Controller('services')
 export class ServicesController {
-  constructor(private readonly serviceServices: ServicesService) {}
+  constructor(
+    private readonly serviceServices: ServicesService,
+    private readonly companyService: CompanyService,
+  ) {}
 
   @Get()
   async getAll() {
@@ -41,9 +49,37 @@ export class ServicesController {
           `Ya existe una servicio llamado '${data.title}'`,
         );
       }
-      return this.serviceServices.create(data);
+
+      return await this.serviceServices.create(data);
     } catch (error) {
-      return error;
+      throw new UnauthorizedException(error.response.message);
+    }
+  }
+  @Post('/add-to-company')
+  async addToCompany(@Body() data: AddToCompanyServicesDto) {
+    try {
+      let company: Company;
+      if (data.companyId) {
+        company = await this.companyService.getById(data.companyId);
+        if (!company) {
+          throw new UnauthorizedException(
+            `No existe la sucursal seleccionada.`,
+          );
+        }
+      }
+      const service = await this.serviceServices.getById(data.serviceId);
+      if (!service) {
+        throw new UnauthorizedException(`No existe el serivcio.`);
+      }
+
+      await this.companyService.addServiceToCompany({
+        company,
+        service,
+      });
+
+      return service;
+    } catch (error) {
+      throw new UnauthorizedException(error.response.message);
     }
   }
   @Patch('/update/:id')
