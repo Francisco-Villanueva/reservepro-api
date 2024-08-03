@@ -5,9 +5,11 @@ import { Member, MemberModel } from 'src/members/schema/member.schema';
 import {
   CLIENT_COMPANY_MODEL,
   CLIENT_MEMBER_MODEL,
+  CLIENT_SERVICE_MODEL,
   COMPANY_MODEL,
   MEMBER_MODEL,
 } from 'src/common/providers/constants';
+import { Service, ServiceModel } from 'src/services/schema/services.schema';
 @Injectable()
 export class CompanyService {
   constructor(
@@ -17,8 +19,15 @@ export class CompanyService {
     private readonly clientCompanyModel: CompanyModel,
     @Inject(CLIENT_MEMBER_MODEL)
     private readonly clientMemberModel: MemberModel,
+    @Inject(CLIENT_SERVICE_MODEL)
+    private readonly clientServiceModel: ServiceModel,
   ) {}
 
+  private async getClientService(originService: Service) {
+    return await this.clientServiceModel.findOne({
+      title: originService.title,
+    });
+  }
   private async getClientMember(originMember: Member) {
     return await this.clientMemberModel.findOne({
       email: originMember.email,
@@ -87,6 +96,27 @@ export class CompanyService {
     }
     clientMember.companies.push(clientCompany._id);
     await clientMember.save();
+  }
+
+  async addServiceToCompany({
+    company,
+    service,
+  }: {
+    company: Company;
+    service: Service;
+  }): Promise<void> {
+    const clientCompany = await this.getClientCompany(company);
+    const clientService = await this.getClientService(service);
+
+    company.services.push(service);
+    await company.save();
+    clientCompany.services.push(clientService);
+    await clientCompany.save();
+
+    service.companies.push(company._id);
+    await service.save();
+    clientService.companies.push(clientCompany._id);
+    await clientService.save();
   }
 
   async count() {

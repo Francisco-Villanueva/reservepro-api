@@ -65,7 +65,11 @@ export class CompanyController {
   @Get('/details/:id')
   async getById(@Param() { id }: { id: string }) {
     try {
-      return await this.companyService.getById(id);
+      const company = await this.companyService.getById(id);
+      if (!company) {
+        throw new UnauthorizedException('Sucursal no encontrada.');
+      }
+      return company;
     } catch (error) {
       return error;
     }
