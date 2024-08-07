@@ -10,6 +10,7 @@ import {
   MEMBER_MODEL,
 } from 'src/common/providers/constants';
 import { Service, ServiceModel } from 'src/services/schema/services.schema';
+import { equal } from 'assert';
 @Injectable()
 export class CompanyService {
   constructor(
@@ -50,6 +51,12 @@ export class CompanyService {
   async create(data: CompanyDTO) {
     await this.clientCompanyModel.create(data);
     return await this.companyModel.create(data);
+  }
+  async delete(id: string) {
+    const originCompany = await this.companyModel.findById(id);
+    const clientCompany = await this.getClientCompany(originCompany);
+    await this.clientCompanyModel.deleteOne({ _id: clientCompany._id });
+    return await this.companyModel.deleteOne({ _id: originCompany._id });
   }
   async update(id: string, data: UpdateCompanyDTO) {
     const originCompany = await this.companyModel.findById(id);
@@ -97,6 +104,36 @@ export class CompanyService {
     clientMember.companies.push(clientCompany._id);
     await clientMember.save();
   }
+  async removeMemberFromCompany({
+    company,
+    member,
+  }: {
+    company: Company;
+    member: Member;
+  }): Promise<void> {
+    const clientCompany = await this.getClientCompany(company);
+    const clientMember = await this.getClientMember(member);
+
+    company.members = company.members.filter(
+      (s) => String(s._id) !== String(member._id),
+    );
+    await company.save();
+    clientCompany.members = clientCompany.members.filter(
+      (s) => String(s._id) !== String(clientMember._id),
+    );
+    await clientCompany.save();
+
+    member.companies = member.companies.filter(
+      (s) => String(s) !== String(company._id),
+    );
+    await member.save();
+
+    clientMember.companies = clientMember.companies.filter(
+      (s) => String(s) !== String(clientCompany._id),
+    );
+
+    await clientMember.save();
+  }
 
   async addServiceToCompany({
     company,
@@ -116,6 +153,35 @@ export class CompanyService {
     service.companies.push(company._id);
     await service.save();
     clientService.companies.push(clientCompany._id);
+    await clientService.save();
+  }
+  async removeServiceFromCompany({
+    company,
+    service,
+  }: {
+    company: Company;
+    service: Service;
+  }): Promise<void> {
+    const clientCompany = await this.getClientCompany(company);
+    const clientService = await this.getClientService(service);
+
+    company.services = company.services.filter(
+      (s) => String(s._id) !== String(service._id),
+    );
+
+    await company.save();
+    clientCompany.services = clientCompany.services.filter(
+      (s) => String(s._id) !== String(clientService._id),
+    );
+    await clientCompany.save();
+
+    service.companies = service.companies.filter(
+      (c) => String(c) !== String(company._id),
+    );
+    await service.save();
+    clientService.companies = clientService.companies.filter(
+      (c) => String(c) !== String(clientCompany._id),
+    );
     await clientService.save();
   }
 

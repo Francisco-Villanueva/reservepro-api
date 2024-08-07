@@ -30,6 +30,9 @@ export class ClientService {
     }
     return await this.clientCompanyModel.find(query);
   }
+  async getCompanyById(id: string) {
+    return await this.clientCompanyModel.findOne({ _id: id });
+  }
   async getMembers() {
     return await this.clientMemberModel.find();
   }
