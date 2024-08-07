@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Header,
   Headers,
@@ -11,11 +12,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { CompanyService } from './company.service';
-import {
-  CompanyDTO,
-  CreateCompanyDTO,
-  UpdateCompanyDTO,
-} from './dto/company.dto';
+import { CreateCompanyDTO, UpdateCompanyDTO } from './dto/company.dto';
 import { MembersService } from 'src/members/members.service';
 import { GeocodeService } from 'src/geocode/geocode.services';
 import { Request as RequestExp } from 'express';
@@ -70,6 +67,16 @@ export class CompanyController {
         throw new UnauthorizedException('Sucursal no encontrada.');
       }
       return company;
+    } catch (error) {
+      return error;
+    }
+  }
+  @Delete('/:id')
+  async delete(@Param() { id }: { id: string }) {
+    try {
+      const res = await this.companyService.delete(id);
+
+      return res;
     } catch (error) {
       return error;
     }
@@ -132,6 +139,29 @@ export class CompanyController {
         member,
         company,
       };
+    } catch (error) {
+      return error;
+    }
+  }
+  @Post('/remove-member')
+  async removeMember(
+    @Body() { companyId, memberId }: { companyId: string; memberId: string },
+  ) {
+    try {
+      const company = await this.companyService.getById(companyId);
+      if (!company) {
+        throw new UnauthorizedException('Company not found!');
+      }
+      const member = await this.memberService.getById(memberId);
+      if (!member) {
+        throw new UnauthorizedException('Member not found!');
+      }
+      await this.companyService.removeMemberFromCompany({
+        company,
+        member,
+      });
+
+      return 'Member removed to company succesfully';
     } catch (error) {
       return error;
     }

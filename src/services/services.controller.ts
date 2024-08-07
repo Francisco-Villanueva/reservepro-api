@@ -55,6 +55,33 @@ export class ServicesController {
       throw new UnauthorizedException(error.response.message);
     }
   }
+  @Post('/remove-from-company')
+  async removeFromCompany(@Body() data: AddToCompanyServicesDto) {
+    try {
+      let company: Company;
+      if (data.companyId) {
+        company = await this.companyService.getById(data.companyId);
+        if (!company) {
+          throw new UnauthorizedException(
+            `No existe la sucursal seleccionada.`,
+          );
+        }
+      }
+      const service = await this.serviceServices.getById(data.serviceId);
+      if (!service) {
+        throw new UnauthorizedException(`No existe el serivcio.`);
+      }
+
+      const response = await this.companyService.removeServiceFromCompany({
+        company,
+        service,
+      });
+
+      return service;
+    } catch (error) {
+      throw new UnauthorizedException(error.response.message);
+    }
+  }
   @Post('/add-to-company')
   async addToCompany(@Body() data: AddToCompanyServicesDto) {
     try {

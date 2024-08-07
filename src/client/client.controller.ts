@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ClientService } from './client.service';
 
 @Controller('client')
@@ -15,6 +15,14 @@ export class ClientController {
         query.category,
         query.city.split(',')[0],
       );
+    } catch (error) {
+      return error;
+    }
+  }
+  @Get('/companies/:id')
+  async getCompanyById(@Param() { id }: { id: string }) {
+    try {
+      return this.clientServices.getCompanyById(id);
     } catch (error) {
       return error;
     }
