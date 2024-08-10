@@ -1,10 +1,6 @@
-import mongoose, {
-  Document,
-  SchemaTimestampsConfig,
-  Model,
-  Types,
-} from 'mongoose';
+import mongoose, { Document, SchemaTimestampsConfig, Model } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Member } from 'src/members/schema/member.schema';
 
 @Schema({ timestamps: true })
 export class Appointment extends Document {
@@ -25,8 +21,10 @@ export class Appointment extends Document {
   service: string;
   @Prop({ type: Boolean, default: false })
   canceled: boolean;
-  @Prop({ type: mongoose.Schema.Types.ObjectId })
-  memberId: mongoose.Schema.Types.ObjectId;
+  @Prop({ type: Member })
+  member: Partial<Member>;
+  @Prop({ type: String })
+  memberId: string;
 }
 
 export const AppointmentSchema = SchemaFactory.createForClass(Appointment);

@@ -38,6 +38,14 @@ export class MembersController {
       return error;
     }
   }
+  @Get('/details/:id')
+  async getById(@Param() params: { id: string }) {
+    try {
+      return await this.memberService.getById(params.id);
+    } catch (error) {
+      return error;
+    }
+  }
   @Get('/free')
   async getFree() {
     try {

@@ -6,6 +6,7 @@ export const COMPANY_MODEL = 'COMPANY_MODEL';
 export const MEMBER_MODEL = 'MEMBER_MODEL';
 export const APPOINTMENT_MODEL = 'APPOINTMENT_MODEL';
 export const SERVICE_MODEL = 'SERVICE_MODEL';
+export const CUSTOMER_MODEL = 'CUSTOMER_MODEL';
 
 //clients models
 export const CLIENT_COMPANY_MODEL = 'CLIENT_COMPANY_MODEL';
