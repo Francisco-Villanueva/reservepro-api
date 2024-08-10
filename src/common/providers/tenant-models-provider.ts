@@ -14,10 +14,12 @@ import {
   CLIENT_SERVICE_MODEL,
   CLIENTS_CONNECTION,
   COMPANY_MODEL,
+  CUSTOMER_MODEL,
   MEMBER_MODEL,
   SERVICE_MODEL,
   TENANT_CONNECTION,
 } from './constants';
+import { Customer, CustomerSchema } from 'src/customer/schema/customer.schema';
 
 export const tenantModels = {
   companyModel: {
@@ -42,6 +44,12 @@ export const tenantModels = {
     provide: SERVICE_MODEL,
     useFactory: (tenantConnection: Connection) =>
       tenantConnection.model(Service.name, ServiceSchema),
+    inject: [TENANT_CONNECTION],
+  },
+  customerModel: {
+    provide: CUSTOMER_MODEL,
+    useFactory: (tenantConnection: Connection) =>
+      tenantConnection.model(Customer.name, CustomerSchema),
     inject: [TENANT_CONNECTION],
   },
 };

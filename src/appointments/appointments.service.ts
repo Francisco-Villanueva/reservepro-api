@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Appointment, AppointmentModel } from './schema/appointment.schema';
 import { AppointmentDTO } from './dto/appointment.dto';
-import { MemberModel } from 'src/members/schema/member.schema';
+import { Member, MemberModel } from 'src/members/schema/member.schema';
 
 @Injectable()
 export class AppointmentsService {
@@ -21,14 +21,15 @@ export class AppointmentsService {
     return await this.appointmentModel.findById({ _id });
   }
   async create(data: AppointmentDTO): Promise<Appointment> {
-    const newAppointment = await this.appointmentModel.create(data);
-
+    const appointment = await this.appointmentModel.create(data);
     await this.addMemberToAppointment({
-      appointmentId: newAppointment._id,
+      appointmentId: appointment._id,
       memberId: data.memberId,
     });
-
-    return newAppointment;
+    return appointment;
+  }
+  async update(id: string, data: Partial<Appointment>): Promise<Appointment> {
+    return await this.appointmentModel.findByIdAndUpdate(id, data);
   }
   async findByAppointmentInfo(data: {
     memberId: string;
@@ -47,12 +48,10 @@ export class AppointmentsService {
     return this.appointmentModel.find({ memberId });
   }
 
-  async cancelAppointment(appointmentId: Appointment['_id'], memberId: string) {
-    const appointment = await this.findById(appointmentId);
+  async cancelAppointment(appointment: Appointment, member: Member) {
     appointment.canceled = true;
     await appointment.save();
 
-    const member = await this.memberModel.findById(memberId);
     member.appointments = member.appointments.filter(
       (appId) => appId.toString() !== appointment._id.toString(),
     );
@@ -60,6 +59,7 @@ export class AppointmentsService {
     await member.save();
     return appointment;
   }
+
   async addMemberToAppointment({
     appointmentId,
     memberId,
@@ -74,9 +74,8 @@ export class AppointmentsService {
       throw new Error('Data error, memberId or CompanyId are not ok.');
     }
     if (appointment && member) {
-      appointment.memberId = member._id;
+      appointment.member = member;
       await appointment.save();
-
       member.appointments.push(appointment._id);
       await member.save();
     }

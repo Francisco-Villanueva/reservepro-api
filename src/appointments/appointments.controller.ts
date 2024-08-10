@@ -13,12 +13,16 @@ import { AppointmentDTO, SlotAppointmentDTO } from './dto/appointment.dto';
 import { getAvailableTimes } from './utlis';
 import { IWorkhour } from 'src/common/workhours';
 import { Appointment } from './schema/appointment.schema';
+import { CustomerService } from 'src/customer/customer.service';
+import { Customer } from 'src/customer/schema/customer.schema';
+import { ICustomer } from 'src/customer/schema/customer.zod';
 
 @Controller('appointments')
 export class AppointmentsController {
   constructor(
     private readonly appointmentService: AppointmentsService,
     private readonly memberService: MembersService,
+    private readonly customerService: CustomerService,
   ) {}
 
   async getSlotsByDate(memberId: string, date: string) {
@@ -29,9 +33,18 @@ export class AppointmentsController {
     const appointments = await this.appointmentService.getByMemberId(memberId);
     const selectedDate = new Date(date).getDay();
     const availableTimes = getAvailableTimes(member.workhours, selectedDate);
+
+    const isAvaialable = (hs: string) => {
+      if (appointments.filter((app) => app.time === hs).length === 0)
+        return true;
+
+      return !appointments
+        .filter((app) => app.time === hs)
+        .some((app) => !app.canceled);
+    };
     const res = availableTimes.map((hs) => ({
       hs,
-      availble: appointments.filter((app) => app.time === hs).length === 0,
+      availble: isAvaialable(hs),
     }));
 
     return res;
@@ -91,13 +104,34 @@ export class AppointmentsController {
         memberId: data.memberId,
         time: data.time,
       });
+
       if (appointment && !appointment.canceled) {
         throw new UnauthorizedException(
           'This appointment slot is not available.',
         );
       }
 
-      return await this.appointmentService.create(data);
+      const newAppointment = await this.appointmentService.create({
+        ...data,
+        member: member,
+      });
+
+      const customerInfo: ICustomer = {
+        email: data.email,
+        firstName: data.name,
+        lastName: data.lastName,
+        phone: data.phone,
+      };
+
+      const customer = await this.customerService.getByEmail(data.email);
+      if (!customer) {
+        const newCustomer = await this.customerService.create(customerInfo);
+        await this.customerService.addAppointment(newAppointment, newCustomer);
+      } else {
+        await this.customerService.addAppointment(newAppointment, customer);
+      }
+
+      return newAppointment;
     } catch (error) {
       return error;
     }
@@ -106,26 +140,24 @@ export class AppointmentsController {
   @Post('cancel')
   async cancel(
     @Body()
-    {
-      appointmemntId,
-      memberId,
-    }: {
-      appointmemntId: Appointment['_id'];
-      memberId: string;
-    },
+    { appointmemntId }: { appointmemntId: Appointment['_id'] },
   ) {
     try {
-      const member = await this.memberService.getById(memberId);
-      if (!member) {
-        throw new UnauthorizedException('Member not found.');
-      }
       const appointment =
         await this.appointmentService.findById(appointmemntId);
       if (!appointment) {
         throw new UnauthorizedException('Appointment not found.');
       }
+      const member = await this.memberService.getById(
+        String(appointment.member._id),
+      );
+      if (!member) {
+        throw new UnauthorizedException('Member not found.');
+      }
 
-      await this.appointmentService.cancelAppointment(appointmemntId, memberId);
+      const customer = await this.customerService.getByEmail(appointment.email);
+      await this.customerService.cancleAppointment(appointment, customer);
+      await this.appointmentService.cancelAppointment(appointment, member);
 
       return 'Appointment cancelled successfully';
     } catch (error) {
