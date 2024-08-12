@@ -8,14 +8,16 @@ import {
   CLIENT_SERVICE_MODEL,
   COMPANY_MODEL,
   MEMBER_MODEL,
+  SERVICE_MODEL,
 } from 'src/common/providers/constants';
 import { Service, ServiceModel } from 'src/services/schema/services.schema';
-import { equal } from 'assert';
+
 @Injectable()
 export class CompanyService {
   constructor(
     @Inject(COMPANY_MODEL) private readonly companyModel: CompanyModel,
     @Inject(MEMBER_MODEL) private readonly memberModel: MemberModel,
+    @Inject(SERVICE_MODEL) private readonly serviceModel: ServiceModel,
     @Inject(CLIENT_COMPANY_MODEL)
     private readonly clientCompanyModel: CompanyModel,
     @Inject(CLIENT_MEMBER_MODEL)
@@ -42,10 +44,23 @@ export class CompanyService {
   }
 
   async getAll(): Promise<Company[]> {
-    return this.companyModel.find().populate('members').exec();
+    return this.companyModel.find();
   }
   async getById(_id: string): Promise<Company> {
     return this.companyModel.findById({ _id });
+  }
+  async getMembers(_id: string): Promise<unknown[]> {
+    const res = await this.companyModel.findById({ _id }).populate('members');
+
+    return res.members;
+  }
+  async getServices(_id: string): Promise<unknown[]> {
+    const res = await this.companyModel.findById({ _id });
+
+    const servicesPromises = res.services.map(
+      async (serviceId) => await this.serviceModel.findById(serviceId),
+    );
+    return await Promise.all(servicesPromises);
   }
 
   async create(data: CompanyDTO) {
@@ -82,27 +97,18 @@ export class CompanyService {
     company: Company;
     member: Member;
   }): Promise<void> {
-    const clientCompany = await this.getClientCompany(company);
-    const clientMember = await this.getClientMember(member);
-    company.members.push(member);
-    await company.save();
-    clientCompany.members.push(clientMember);
-    await clientCompany.save();
+    if (!company.members.includes(member._id)) {
+      company.members.push(member._id);
+      await company.save();
+    }
 
-    if (!member.workhours.length) {
-      member.workhours = company.workhours;
+    if (!member.companies.includes(company._id)) {
+      member.companies.push(company._id);
+      if (!member.workhours.length) {
+        member.workhours = company.workhours;
+      }
       await member.save();
     }
-    member.companies.push(company._id);
-    await member.save();
-
-    //ADD COMPANY TO MEMBER, AT CLIENT CONNECTION.
-    if (!clientMember.workhours.length) {
-      clientMember.workhours = clientCompany.workhours;
-      await clientMember.save();
-    }
-    clientMember.companies.push(clientCompany._id);
-    await clientMember.save();
   }
   async removeMemberFromCompany({
     company,
@@ -111,30 +117,14 @@ export class CompanyService {
     company: Company;
     member: Member;
   }): Promise<void> {
-    const clientCompany = await this.getClientCompany(company);
-    const clientMember = await this.getClientMember(member);
-
-    company.members = company.members.filter(
-      (s) => String(s._id) !== String(member._id),
-    );
+    // Elimina la referencia del miembro en la compañía
+    company.members = company.members.filter((m) => m !== member._id);
     await company.save();
-    clientCompany.members = clientCompany.members.filter(
-      (s) => String(s._id) !== String(clientMember._id),
-    );
-    await clientCompany.save();
 
-    member.companies = member.companies.filter(
-      (s) => String(s) !== String(company._id),
-    );
+    // Elimina la referencia de la compañía en el miembro
+    member.companies = member.companies.filter((c) => c !== company._id);
     await member.save();
-
-    clientMember.companies = clientMember.companies.filter(
-      (s) => String(s) !== String(clientCompany._id),
-    );
-
-    await clientMember.save();
   }
-
   async addServiceToCompany({
     company,
     service,
@@ -142,18 +132,17 @@ export class CompanyService {
     company: Company;
     service: Service;
   }): Promise<void> {
-    const clientCompany = await this.getClientCompany(company);
-    const clientService = await this.getClientService(service);
+    // Verifica si el servicio ya está asociado con la compañía para evitar duplicados
+    if (!company.services.includes(service._id)) {
+      company.services.push(service._id);
+      await company.save();
+    }
 
-    company.services.push(service);
-    await company.save();
-    clientCompany.services.push(clientService);
-    await clientCompany.save();
-
-    service.companies.push(company._id);
-    await service.save();
-    clientService.companies.push(clientCompany._id);
-    await clientService.save();
+    // Verifica si la compañía ya está asociada con el servicio para evitar duplicados
+    if (!service.companies.includes(company._id)) {
+      service.companies.push(company._id);
+      await service.save();
+    }
   }
   async removeServiceFromCompany({
     company,
@@ -162,27 +151,17 @@ export class CompanyService {
     company: Company;
     service: Service;
   }): Promise<void> {
-    const clientCompany = await this.getClientCompany(company);
-    const clientService = await this.getClientService(service);
-
+    // Elimina la referencia del servicio en la compañía
     company.services = company.services.filter(
-      (s) => String(s._id) !== String(service._id),
+      (s) => String(s) !== String(service._id),
     );
-
     await company.save();
-    clientCompany.services = clientCompany.services.filter(
-      (s) => String(s._id) !== String(clientService._id),
-    );
-    await clientCompany.save();
 
+    // Elimina la referencia de la compañía en el servicio
     service.companies = service.companies.filter(
       (c) => String(c) !== String(company._id),
     );
     await service.save();
-    clientService.companies = clientService.companies.filter(
-      (c) => String(c) !== String(clientCompany._id),
-    );
-    await clientService.save();
   }
 
   async count() {

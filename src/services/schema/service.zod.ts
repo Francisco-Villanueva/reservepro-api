@@ -30,3 +30,7 @@ export const AddServiceToCompanySchema = z.object({
   companyId: z.string().min(1),
   serviceId: z.string().min(1),
 });
+export const AddMemberSchema = z.object({
+  memberId: z.string().min(1),
+  serviceId: z.string().min(1),
+});

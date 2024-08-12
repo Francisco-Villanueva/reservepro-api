@@ -1,10 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
+  CLIENT_MEMBER_MODEL,
   CLIENT_SERVICE_MODEL,
+  MEMBER_MODEL,
   SERVICE_MODEL,
 } from 'src/common/providers/constants';
 import { Service, ServiceModel } from './schema/services.schema';
 import { ICreateService, IUpdateService } from './schema/service.zod';
+import { MemberModel } from 'src/members/schema/member.schema';
 
 @Injectable()
 export class ServicesService {
@@ -12,6 +15,10 @@ export class ServicesService {
     @Inject(SERVICE_MODEL) private readonly serviceModel: ServiceModel,
     @Inject(CLIENT_SERVICE_MODEL)
     private readonly clientServiceModel: ServiceModel,
+    @Inject(CLIENT_MEMBER_MODEL)
+    private readonly clientMemberModel: MemberModel,
+    @Inject(MEMBER_MODEL)
+    private readonly memberModel: MemberModel,
   ) {}
 
   private async getClientService(originalService: Service) {
@@ -20,7 +27,16 @@ export class ServicesService {
     });
   }
   async getAll() {
-    return await this.serviceModel.find();
+    return await this.serviceModel.find().populate('members').exec();
+  }
+
+  async getMembers(_id: string): Promise<unknown[]> {
+    const res = await this.serviceModel.findById({ _id });
+
+    const servicesPromises = res.members.map(
+      async (serviceId) => await this.memberModel.findById(serviceId),
+    );
+    return await Promise.all(servicesPromises);
   }
   async getByTitle(title: string) {
     return await this.serviceModel.findOne({ title });
@@ -43,5 +59,41 @@ export class ServicesService {
     const clientService = await this.getClientService(service);
     await this.clientServiceModel.deleteOne({ _id: clientService._id });
     return await this.serviceModel.deleteOne({ _id: service._id });
+  }
+
+  async addMemberToService(serviceId: string, memberId: string) {
+    const service = await this.serviceModel.findById(serviceId);
+    if (!service) throw new Error('Service not found!');
+
+    const member = await this.memberModel.findById(memberId);
+    if (!member) throw new Error('Member not found!');
+
+    // Verificar si el miembro ya está en el servicio
+    const isMemberInService = service.members.some(
+      (e) => String(e._id) === String(member._id),
+    );
+
+    if (!isMemberInService) {
+      // Añadir el miembro al servicio
+      service.members.push(member._id);
+      await service.save();
+    }
+
+    return service;
+  }
+
+  async removeMemberFromService(serviceId: string, memberId: string) {
+    const service = await this.serviceModel.findById(serviceId);
+    if (!service) throw new Error('Service not  found!');
+    const member = await this.memberModel.findById(memberId);
+    if (!member) throw new Error('Member not  found!');
+
+    service.members = service.members.filter(
+      (e) => e.toString() !== member._id.toString(),
+    );
+
+    await service.save();
+
+    return service;
   }
 }

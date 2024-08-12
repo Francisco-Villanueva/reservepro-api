@@ -18,7 +18,9 @@ import { CompanyService } from 'src/company/company.service';
     CompanyService,
     JwtService,
     tenantModels.serviceModel,
+    tenantModels.membersModel,
     clientsModels.clientServiceModel,
+    clientsModels.clientMembersModel,
   ],
 })
 export class ServicesModule {
