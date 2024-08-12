@@ -71,6 +71,30 @@ export class CompanyController {
       return error;
     }
   }
+  @Get('/members/:id')
+  async getMembers(@Param() { id }: { id: string }) {
+    try {
+      const members = await this.companyService.getMembers(id);
+      if (!members) {
+        throw new UnauthorizedException('Sucursal no encontrada.');
+      }
+      return members;
+    } catch (error) {
+      return error;
+    }
+  }
+  @Get('/services/:id')
+  async getSerivces(@Param() { id }: { id: string }) {
+    try {
+      const services = await this.companyService.getServices(id);
+      if (!services) {
+        throw new UnauthorizedException('Sucursal no encontrada.');
+      }
+      return services;
+    } catch (error) {
+      return error;
+    }
+  }
   @Delete('/:id')
   async delete(@Param() { id }: { id: string }) {
     try {

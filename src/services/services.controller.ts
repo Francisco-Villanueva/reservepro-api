@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -10,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { ServicesService } from './services.service';
 import {
+  AddMemberDTO,
   AddToCompanyServicesDto,
   CreateServicesDto,
   UpdateServicesDto,
@@ -32,10 +34,18 @@ export class ServicesController {
     }
   }
 
-  @Get()
-  async getByIde() {
+  @Get('/details/:id')
+  async getById(@Param() { id }: { id: string }) {
     try {
-      return this.serviceServices.getAll();
+      return this.serviceServices.getById(id);
+    } catch (error) {
+      return error;
+    }
+  }
+  @Get('/members/:id')
+  async getMembers(@Param() { id }: { id: string }) {
+    try {
+      return this.serviceServices.getMembers(id);
     } catch (error) {
       return error;
     }
@@ -107,6 +117,28 @@ export class ServicesController {
       return service;
     } catch (error) {
       throw new UnauthorizedException(error.response.message);
+    }
+  }
+  @Post('/add-member')
+  async addMember(@Body() data: AddMemberDTO) {
+    try {
+      return await this.serviceServices.addMemberToService(
+        data.serviceId,
+        data.memberId,
+      );
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+  @Post('/remove-member')
+  async removeMember(@Body() data: AddMemberDTO) {
+    try {
+      return await this.serviceServices.removeMemberFromService(
+        data.serviceId,
+        data.memberId,
+      );
+    } catch (error) {
+      throw new BadRequestException(error.message);
     }
   }
   @Patch('/update/:id')

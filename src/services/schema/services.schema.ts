@@ -1,14 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, {
-  Document,
-  SchemaTimestampsConfig,
-  Model,
-  Types,
-} from 'mongoose';
+import { Document, SchemaTimestampsConfig, Model, Types } from 'mongoose';
 import { Provision } from '../interfaces/provision.interface';
 @Schema({ timestamps: true })
 export class Service extends Document {
-  _id?: mongoose.Schema.Types.ObjectId;
+  _id?: Types.ObjectId;
   @Prop({ type: String, required: true })
   title: string;
   @Prop({ type: Number, required: true })
@@ -20,9 +15,9 @@ export class Service extends Document {
   @Prop({ type: String, required: false })
   description: string;
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Member' }], default: [] })
-  members: mongoose.Schema.Types.ObjectId[];
-  @Prop({ type: [{ type: Types.ObjectId, ref: 'Member' }], default: [] })
-  companies: mongoose.Schema.Types.ObjectId[];
+  members: Types.ObjectId[];
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'Company' }], default: [] })
+  companies: Types.ObjectId[];
 }
 export const ServiceSchema = SchemaFactory.createForClass(Service);
 
