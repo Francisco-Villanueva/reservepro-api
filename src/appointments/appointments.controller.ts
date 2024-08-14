@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Patch,
   Post,
   Query,
@@ -58,7 +59,10 @@ export class AppointmentsController {
     }
     for (const segment of selectedWorkhours.segments) {
       if (data.time >= segment.startime && data.time <= segment.endTime) {
-        return true;
+        const hoursList = await this.getSlotsByDate(data.memberId, data.date);
+        if (hoursList.some((slot) => slot.hs === data.time)) {
+          return true;
+        }
       }
     }
 
@@ -69,6 +73,15 @@ export class AppointmentsController {
   async getAll(@Query('availables') availables?: boolean) {
     try {
       return await this.appointmentService.getAll(availables);
+    } catch (error) {
+      return error;
+    }
+  }
+
+  @Get('/email/:email')
+  async getByEmail(@Param() { email }: { email: string }) {
+    try {
+      return await this.appointmentService.findByEmail(email);
     } catch (error) {
       return error;
     }
@@ -148,9 +161,7 @@ export class AppointmentsController {
       if (!appointment) {
         throw new UnauthorizedException('Appointment not found.');
       }
-      const member = await this.memberService.getById(
-        String(appointment.member._id),
-      );
+      const member = await this.memberService.getById(appointment.memberId);
       if (!member) {
         throw new UnauthorizedException('Member not found.');
       }
