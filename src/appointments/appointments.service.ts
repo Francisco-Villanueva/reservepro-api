@@ -20,6 +20,9 @@ export class AppointmentsService {
   async findById(_id: Appointment['_id']): Promise<Appointment> {
     return await this.appointmentModel.findById({ _id });
   }
+  async findByEmail(email: string): Promise<Appointment[]> {
+    return await this.appointmentModel.find({ email });
+  }
   async create(data: AppointmentDTO): Promise<Appointment> {
     const appointment = await this.appointmentModel.create(data);
     await this.addMemberToAppointment({
@@ -74,10 +77,6 @@ export class AppointmentsService {
       throw new Error('Data error, memberId or CompanyId are not ok.');
     }
     if (appointment && member) {
-      appointment.member = member;
-      await appointment.save();
-      member.appointments.push(appointment._id);
-      await member.save();
     }
   }
 }

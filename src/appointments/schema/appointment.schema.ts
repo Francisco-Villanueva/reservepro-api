@@ -21,8 +21,6 @@ export class Appointment extends Document {
   service: string;
   @Prop({ type: Boolean, default: false })
   canceled: boolean;
-  @Prop({ type: Member })
-  member: Partial<Member>;
   @Prop({ type: String })
   memberId: string;
 }
