@@ -53,7 +53,6 @@ export class MembersService {
     // Sincroniza las compañías relacionadas con este miembro
     const companies = await this.companyModel.find({ members: id });
 
-    console.log('list de compnies,', companies);
     for (const company of companies) {
       // Actualiza cada compañía que tenga a este miembro en su lista
       await this.companyModel.updateOne(
