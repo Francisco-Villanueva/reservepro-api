@@ -109,7 +109,27 @@ export class CompanyService {
       }
       await member.save();
     }
+
+    // Client logic
+    const clientCompany = await this.getClientCompany(company);
+    const clientMember = await this.getClientMember(member);
+
+    if (clientCompany && clientMember) {
+      if (!clientCompany.members.includes(clientMember._id)) {
+        clientCompany.members.push(clientMember._id);
+        await clientCompany.save();
+      }
+
+      if (!clientMember.companies.includes(clientCompany._id)) {
+        clientMember.companies.push(clientCompany._id);
+        if (!clientMember.workhours.length) {
+          clientMember.workhours = clientCompany.workhours;
+        }
+        await clientMember.save();
+      }
+    }
   }
+
   async removeMemberFromCompany({
     company,
     member,
@@ -124,7 +144,24 @@ export class CompanyService {
     // Elimina la referencia de la compañía en el miembro
     member.companies = member.companies.filter((c) => c !== company._id);
     await member.save();
+
+    // Client logic
+    const clientCompany = await this.getClientCompany(company);
+    const clientMember = await this.getClientMember(member);
+
+    if (clientCompany && clientMember) {
+      clientCompany.members = clientCompany.members.filter(
+        (m) => m !== clientMember._id,
+      );
+      await clientCompany.save();
+
+      clientMember.companies = clientMember.companies.filter(
+        (c) => c !== clientCompany._id,
+      );
+      await clientMember.save();
+    }
   }
+
   async addServiceToCompany({
     company,
     service,
@@ -143,7 +180,24 @@ export class CompanyService {
       service.companies.push(company._id);
       await service.save();
     }
+
+    // Client logic
+    const clientCompany = await this.getClientCompany(company);
+    const clientService = await this.getClientService(service);
+
+    if (clientCompany && clientService) {
+      if (!clientCompany.services.includes(clientService._id)) {
+        clientCompany.services.push(clientService._id);
+        await clientCompany.save();
+      }
+
+      if (!clientService.companies.includes(clientCompany._id)) {
+        clientService.companies.push(clientCompany._id);
+        await clientService.save();
+      }
+    }
   }
+
   async removeServiceFromCompany({
     company,
     service,
@@ -162,6 +216,22 @@ export class CompanyService {
       (c) => String(c) !== String(company._id),
     );
     await service.save();
+
+    // Client logic
+    const clientCompany = await this.getClientCompany(company);
+    const clientService = await this.getClientService(service);
+
+    if (clientCompany && clientService) {
+      clientCompany.services = clientCompany.services.filter(
+        (s) => String(s) !== String(clientService._id),
+      );
+      await clientCompany.save();
+
+      clientService.companies = clientService.companies.filter(
+        (c) => String(c) !== String(clientCompany._id),
+      );
+      await clientService.save();
+    }
   }
 
   async count() {

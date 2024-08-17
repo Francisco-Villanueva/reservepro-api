@@ -73,6 +73,14 @@ export class ServicesService {
     const member = await this.memberModel.findById(memberId);
     if (!member) throw new Error('Member not found!');
 
+    const clientService = await this.getClientService(service);
+    if (!clientService) throw new Error('Client service not found!');
+
+    const clientMember = await this.clientMemberModel.findOne({
+      email: member.email,
+    });
+    if (!clientMember) throw new Error('Client member not found!');
+
     // Verificar si el miembro ya está en el servicio
     const isMemberInService = service.members.some(
       (e) => String(e._id) === String(member._id),
@@ -82,6 +90,10 @@ export class ServicesService {
       // Añadir el miembro al servicio
       service.members.push(member._id);
       await service.save();
+
+      // Añadir el miembro al servicio del cliente
+      clientService.members.push(clientMember._id);
+      await clientService.save();
     }
 
     return service;
@@ -89,15 +101,28 @@ export class ServicesService {
 
   async removeMemberFromService(serviceId: string, memberId: string) {
     const service = await this.serviceModel.findById(serviceId);
-    if (!service) throw new Error('Service not  found!');
+    if (!service) throw new Error('Service not found!');
+
     const member = await this.memberModel.findById(memberId);
-    if (!member) throw new Error('Member not  found!');
+    if (!member) throw new Error('Member not found!');
+
+    const clientService = await this.getClientService(service);
+    if (!clientService) throw new Error('Client service not found!');
+
+    const clientMember = await this.clientMemberModel.findOne({
+      email: member.email,
+    });
+    if (!clientMember) throw new Error('Client member not found!');
 
     service.members = service.members.filter(
       (e) => e.toString() !== member._id.toString(),
     );
-
     await service.save();
+
+    clientService.members = clientService.members.filter(
+      (e) => e.toString() !== clientMember._id.toString(),
+    );
+    await clientService.save();
 
     return service;
   }
