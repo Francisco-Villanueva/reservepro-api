@@ -7,6 +7,7 @@ import { JwtService } from '@nestjs/jwt';
 import { TenantsMiddleware } from 'src/common/middlewares/tenants.middleware';
 import { MembersService } from 'src/members/members.service';
 import { CustomerService } from 'src/customer/customer.service';
+import { ServicesService } from 'src/services/services.service';
 
 @Module({
   imports: [TenantsModule],
@@ -14,6 +15,7 @@ import { CustomerService } from 'src/customer/customer.service';
   providers: [
     AppointmentsService,
     CustomerService,
+    ServicesService,
     tenantModels.appointmentModel,
     tenantModels.membersModel,
     MembersService,
