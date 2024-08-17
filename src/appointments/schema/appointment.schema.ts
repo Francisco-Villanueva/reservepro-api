@@ -1,6 +1,5 @@
 import { Document, SchemaTimestampsConfig, Model, Types } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Member } from 'src/members/schema/member.schema';
 
 @Schema({ timestamps: true })
 export class Appointment extends Document {
@@ -17,8 +16,10 @@ export class Appointment extends Document {
   date: string;
   @Prop({ type: String, required: true })
   phone: string;
+  @Prop({ type: Number, required: true })
+  duration: number;
   @Prop({ type: String, required: true })
-  service: string;
+  serviceId: string;
   @Prop({ type: Boolean, default: false })
   canceled: boolean;
   @Prop({ type: String })

@@ -38,6 +38,11 @@ export class ServicesService {
     );
     return await Promise.all(servicesPromises);
   }
+  async getOneMember(serviceId: string, memberId: string) {
+    const res = await this.serviceModel.findById(serviceId);
+
+    return res.members.some((id) => id.toString() === memberId);
+  }
   async getByTitle(title: string) {
     return await this.serviceModel.findOne({ title });
   }

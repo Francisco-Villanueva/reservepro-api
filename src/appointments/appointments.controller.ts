@@ -17,23 +17,30 @@ import { Appointment } from './schema/appointment.schema';
 import { CustomerService } from 'src/customer/customer.service';
 import { Customer } from 'src/customer/schema/customer.schema';
 import { ICustomer } from 'src/customer/schema/customer.zod';
+import { ServicesService } from 'src/services/services.service';
 
 @Controller('appointments')
 export class AppointmentsController {
   constructor(
     private readonly appointmentService: AppointmentsService,
+    private readonly servicesService: ServicesService,
     private readonly memberService: MembersService,
     private readonly customerService: CustomerService,
   ) {}
 
-  async getSlotsByDate(memberId: string, date: string) {
+  async getSlotsByDate(memberId: string, date: string, duration: number) {
     const member = await this.memberService.getById(memberId);
     if (!member) {
       throw new UnauthorizedException('Member not found.');
     }
     const appointments = await this.appointmentService.getByMemberId(memberId);
     const selectedDate = new Date(date).getDay();
-    const availableTimes = getAvailableTimes(member.workhours, selectedDate);
+    const availableTimes = getAvailableTimes(
+      member.workhours,
+      selectedDate,
+      duration,
+      appointments,
+    );
 
     const isAvaialable = (hs: string) => {
       if (appointments.filter((app) => app.time === hs).length === 0)
@@ -50,7 +57,11 @@ export class AppointmentsController {
 
     return res;
   }
-  async validateAppointmentData(data: AppointmentDTO, workhours: IWorkhour[]) {
+  async validateAppointmentData(
+    data: AppointmentDTO,
+    workhours: IWorkhour[],
+    duration: number,
+  ) {
     const selectedWorkhours = workhours.find(
       (wh) => wh.day === new Date(data.date).getDay(),
     );
@@ -59,7 +70,11 @@ export class AppointmentsController {
     }
     for (const segment of selectedWorkhours.segments) {
       if (data.time >= segment.startime && data.time <= segment.endTime) {
-        const hoursList = await this.getSlotsByDate(data.memberId, data.date);
+        const hoursList = await this.getSlotsByDate(
+          data.memberId,
+          data.date,
+          duration,
+        );
         if (hoursList.some((slot) => slot.hs === data.time)) {
           return true;
         }
@@ -90,10 +105,10 @@ export class AppointmentsController {
   @Get('member-slots')
   async memberSlots(
     @Body()
-    { memberId, date }: SlotAppointmentDTO,
+    { memberId, date, duration }: SlotAppointmentDTO,
   ) {
     try {
-      return await this.getSlotsByDate(memberId, date);
+      return await this.getSlotsByDate(memberId, date, duration);
     } catch (error) {
       return error;
     }
@@ -110,7 +125,23 @@ export class AppointmentsController {
         throw new UnauthorizedException('Member no tiene company');
       }
 
-      await this.validateAppointmentData(data, member.workhours);
+      const service = await this.servicesService.getById(data.serviceId);
+
+      if (!service) {
+        throw new UnauthorizedException('Service not found.');
+      }
+
+      if (!service.members.some((id) => id.toString() === data.memberId)) {
+        throw new UnauthorizedException(
+          'The selected  member does not belongs to this service.',
+        );
+      }
+
+      await this.validateAppointmentData(
+        data,
+        member.workhours,
+        service.duration,
+      );
 
       const appointment = await this.appointmentService.findByAppointmentInfo({
         date: data.date,
@@ -126,6 +157,7 @@ export class AppointmentsController {
 
       const newAppointment = await this.appointmentService.create({
         ...data,
+        duration: service.duration,
         member: member,
       });
 

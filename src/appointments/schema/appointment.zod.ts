@@ -9,6 +9,7 @@ export const AppointmentZodSchema = z.object({
   email: z.string().email(),
   phone: z.string().min(1),
   time: z.string().min(1),
+  duration: z.number().optional(),
   date: z
     .string()
     .trim()
@@ -20,7 +21,7 @@ export const AppointmentZodSchema = z.object({
   member: MemberZodSchema.omit({
     password: true,
   }).optional(),
-  service: z.string().min(1),
+  serviceId: z.string().min(1),
 });
 
 export const SlotsZodSchmea = z.object({
@@ -32,6 +33,7 @@ export const SlotsZodSchmea = z.object({
         'Date must be a valid ISO 8601 string including time and timezone',
     }),
   memberId: z.string().min(1),
+  duration: z.number(),
 });
 export const CancelAppointmentZodSchema = z.object({
   memberId: z.string().min(1),
