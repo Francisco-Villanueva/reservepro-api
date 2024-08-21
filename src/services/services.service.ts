@@ -7,7 +7,7 @@ import {
 } from 'src/common/providers/constants';
 import { Service, ServiceModel } from './schema/services.schema';
 import { ICreateService, IUpdateService } from './schema/service.zod';
-import { MemberModel } from 'src/members/schema/member.schema';
+import { Member, MemberModel } from 'src/members/schema/member.schema';
 
 @Injectable()
 export class ServicesService {
@@ -30,8 +30,12 @@ export class ServicesService {
     return await this.serviceModel.find().populate('members').exec();
   }
 
-  async getMembers(_id: string): Promise<unknown[]> {
-    const res = await this.serviceModel.findById({ _id });
+  async getMembers(serviceId: string): Promise<Member[]> {
+    const res = await this.serviceModel.findById(serviceId);
+
+    if (!res) {
+      throw new Error('service not found');
+    }
 
     const servicesPromises = res.members.map(
       async (serviceId) => await this.memberModel.findById(serviceId),
