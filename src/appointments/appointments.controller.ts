@@ -15,7 +15,6 @@ import { getAvailableTimes } from './utlis';
 import { IWorkhour } from 'src/common/workhours';
 import { Appointment } from './schema/appointment.schema';
 import { CustomerService } from 'src/customer/customer.service';
-import { Customer } from 'src/customer/schema/customer.schema';
 import { ICustomer } from 'src/customer/schema/customer.zod';
 import { ServicesService } from 'src/services/services.service';
 
