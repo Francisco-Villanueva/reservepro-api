@@ -3,7 +3,7 @@ import { AuthService } from './auth.service';
 import { CreateTenantDto } from '../tenants/dto';
 import { TenantsService } from '../tenants/tenants.service';
 import { LoginDto } from './dto/auth.dto';
-import { RefreshJwtGuard } from './guard/refresh.guard';
+import { RefreshJwtGuard } from './guards/refresh.guard';
 import { CreateTenantByProvidersDto } from 'src/tenants/dto/create-tenant-by-providers.dto';
 
 @Controller('auth')
